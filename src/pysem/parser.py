@@ -1,19 +1,30 @@
+def rule(f):  
+    def traced(self, *args, **kwargs):
+        print("BEFORE '{}': current = '{}', tokens = {}".format(f.__name__, self.current, self.tokens))
+        result = f(self, *args, **kwargs)
+        print("AFTER  '{}': current = {}, tokens = {}".format(f.__name__, self.current, self.tokens))
+        return result
+    return traced
+
+        
 class ParseException(BaseException):
     pass
 
 class Parser(object):
 
     def next(self):
-        if len(self.tokens) < 1: return
-            #raise ParseException("No more tokens")
+        if len(self.tokens) < 1: 
+            return
         self.current = self.tokens.pop(0)
 
+    @rule
     def factor(self):
         if self.current == "number":
             self.next()
         else:
             raise ParseException("expecting 'number', not " + self.current)
-            
+
+    @rule
     def term(self):
         self.factor()
         while self.current == "*":
@@ -28,10 +39,22 @@ class Parser(object):
             self.next()
             self.term()
 
+    def parse(self, tokens):
+        self.tokens = tokens
+        if len(self.tokens) < 1:
+            raise ParseException("empty input")
+        self.next()
+        self.expression()
+        if len(self.tokens) > 0:
+            raise ParseException("tokens at end of input", self.tokens)
+    
+    # TODO
     def set(self):
         '''set write, "Enter a value: "'''
-        pass
-    
+        if self.current == 'set':
+            self.next()
+            self.expression()
+            
     def jump(self):
         '''jump 12'''
         pass
@@ -45,19 +68,9 @@ class Parser(object):
         pass
 
     def stmt(self):
-        if current == 'halt':
-            halt()
-        if current == 'set':
-            set()
-        expect('\n')
-
-    def parse(self, tokens):
-        self.tokens = tokens
-        if len(self.tokens) < 1:
-            raise ParseException("empty input")
-        self.next()
-        self.expression()
-        if len(self.tokens) > 0:
-            raise ParseException("tokens at end of input", self.tokens)
-
+        if self.current == 'halt':
+            self.halt()
+        if self.current == 'set':
+            self.set()
+        raise ParseException("not a valid statement", self.current)
 

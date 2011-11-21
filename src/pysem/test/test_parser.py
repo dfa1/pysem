@@ -28,6 +28,7 @@ class ParserTest(TestCase):
         parser.parse(["number", "+", "number", "+", "number"])
 
     def test_accepts_two_multiplicative_exprs(self):
+        rule.ENABLED = True
         parser = Parser()
         parser.parse(["number", "*", "number", "*", "number"])
 
