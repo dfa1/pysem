@@ -33,5 +33,3 @@ class ParserTest(TestCase):
         parser.parse(["number", "*", "number", "*", "number"])
 
 
-
-

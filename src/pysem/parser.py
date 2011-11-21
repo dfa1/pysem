@@ -31,6 +31,7 @@ class Parser(object):
             self.next()
             self.factor()
 
+    @rule
     def expression(self):
         if self.current == "+":
             self.next()
@@ -73,4 +74,5 @@ class Parser(object):
         if self.current == 'set':
             self.set()
         raise ParseException("not a valid statement", self.current)
+
 
