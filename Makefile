@@ -1,4 +1,4 @@
-PYTHON=/opt/python3.2/bin/python3
+PYTHON=/opt/python3.3/bin/python3.3
 
 all: test
 
