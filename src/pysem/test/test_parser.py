@@ -15,13 +15,21 @@ class ParserTest(TestCase):
         parser = Parser()
         parser.parse(["number"]) 
 
-    def test_accepts_additive(self):
+    def test_accepts_one_additive_expr(self):
         parser = Parser()
         parser.parse(["number", "+", "number"])
 
-    def test_accepts_multiplicative(self):
+    def test_accepts_onemultiplicative_expr(self):
         parser = Parser()
         parser.parse(["number", "*", "number"])
+
+    def test_accepts_two_additive_exprs(self):
+        parser = Parser()
+        parser.parse(["number", "+", "number", "+", "number"])
+
+    def test_accepts_two_multiplicative_exprs(self):
+        parser = Parser()
+        parser.parse(["number", "*", "number", "*", "number"])
 
 
 

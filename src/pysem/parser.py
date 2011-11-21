@@ -16,7 +16,7 @@ class Parser(object):
             
     def term(self):
         self.factor()
-        if self.current == "*":
+        while self.current == "*":
             self.next()
             self.factor()
 
@@ -24,8 +24,7 @@ class Parser(object):
         if self.current == "+":
             self.next()
         self.term()
-
-        if self.current == "+":
+        while self.current == "+":
             self.next()
             self.term()
 
