@@ -4,15 +4,15 @@ class ParseException(BaseException):
 class Parser(object):
 
     def next(self):
-        if len(self.tokens) < 1:
-            raise ParseException("No more tokens")
+        if len(self.tokens) < 1: return
+            #raise ParseException("No more tokens")
         self.current = self.tokens.pop(0)
 
     def factor(self):
         if self.current == "number":
-            pass
+            self.next()
         else:
-            raise ParseException("expecting 'number', not '{}'".format(self.current))
+            raise ParseException("expecting 'number', not " + self.current)
             
     def term(self):
         self.factor()
@@ -24,6 +24,7 @@ class Parser(object):
         if self.current == "+":
             self.next()
         self.term()
+
         if self.current == "+":
             self.next()
             self.term()
@@ -53,8 +54,12 @@ class Parser(object):
 
     def parse(self, tokens):
         self.tokens = tokens
+        if len(self.tokens) < 1:
+            raise ParseException("empty input")
         self.next()
         self.expression()
+        if len(self.tokens) > 0:
+            raise ParseException("tokens at end of input", self.tokens)
 
 import unittest
 
@@ -81,5 +86,5 @@ class ParserTest(unittest.TestCase):
         parser.parse(["number", "*", "number"])
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(exit=False,verbosity=3)
 
