@@ -80,7 +80,6 @@ class ParserTest(unittest.TestCase):
         parser = Parser()
         parser.parse(["number", "*", "number"])
 
-
 if __name__ == '__main__':
     unittest.main()
 
