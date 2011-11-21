@@ -61,30 +61,4 @@ class Parser(object):
         if len(self.tokens) > 0:
             raise ParseException("tokens at end of input", self.tokens)
 
-import unittest
-
-class ParserTest(unittest.TestCase):
-
-    def test_refuse_empty_input(self):
-        parser = Parser()
-        self.assertRaises(ParseException, parser.parse, [])
-
-    def test_refuse_non_number(self):
-        parser = Parser()
-        self.assertRaises(ParseException, parser.parse, ["non_number"])
-
-    def test_accepts_number(self):
-        parser = Parser()
-        parser.parse(["number"]) 
-
-    def test_accepts_additive(self):
-        parser = Parser()
-        parser.parse(["number", "+", "number"])
-
-    def test_accepts_multiplicative(self):
-        parser = Parser()
-        parser.parse(["number", "*", "number"])
-
-if __name__ == '__main__':
-    unittest.main(exit=False,verbosity=3)
 

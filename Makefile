@@ -1,8 +1,8 @@
-PYTHON=python3.1
+PYTHON=/opt/python3.2/bin/python3
 
 all: test
 
 test:
-	@PYTHONPATH=$$PYTHONPATH:src $(PYTHON) -m unittest pysem
+	$(PYTHON) -m unittest discover -v -s src/pysem
 
 .PHONY: test
