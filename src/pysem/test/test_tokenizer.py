@@ -15,6 +15,18 @@ class TokenizerTest(TestCase):
     def test_minus(self):
         self.assertEqual(("-", None), next(tokenize("-")))
 
+    def test_slash(self):
+        self.assertEqual(("*", None), next(tokenize("*")))
+
+    def test_slash(self):
+        self.assertEqual(("/", None), next(tokenize("/")))
+
+    def test_lbracket(self):
+        self.assertEqual(("[", None), next(tokenize("[")))
+
+    def test_rbracket(self):
+        self.assertEqual(("]", None), next(tokenize("]")))
+
     def test_name(self):
         self.assertEqual(("NAME", "foo"), next(tokenize("foo")))
 
