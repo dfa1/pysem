@@ -1,7 +1,7 @@
 from re import compile
 
 def tokenize(line):
-    operators = [ '+', '-', '*', '/', '[', ']']
+    operators = [ '+', '-', '*', '/', '[', ']', ',']
     regexp = compile("\s*(?:(\d+)|(\w+)|\"(.*)\"|(.+))")
     for number, name, string, operator in regexp.findall(line):
         if number:

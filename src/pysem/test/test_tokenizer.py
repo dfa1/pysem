@@ -8,18 +8,21 @@ class TokenizerTest(TestCase):
 
     def test_number(self):
         self.assertEqual(("NUMBER", "0"), next(tokenize("0")))
-        
+    
     def test_plus(self):
         self.assertEqual(("+", None), next(tokenize("+")))
 
     def test_minus(self):
         self.assertEqual(("-", None), next(tokenize("-")))
 
-    def test_slash(self):
+    def test_star(self):
         self.assertEqual(("*", None), next(tokenize("*")))
 
     def test_slash(self):
         self.assertEqual(("/", None), next(tokenize("/")))
+
+    def test_comma(self):
+        self.assertEqual((",", None), next(tokenize(",")))
 
     def test_lbracket(self):
         self.assertEqual(("[", None), next(tokenize("[")))

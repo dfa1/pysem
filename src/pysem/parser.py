@@ -1,28 +1,25 @@
+out = print
+out = lambda x: None
+
 def rule(f):  
     def traced(self, *args, **kwargs):
-        print("BEFORE '{}': current = '{}', tokens = {}".format(f.__name__, self.current, self.tokens))
+        out("BEFORE '{}': current = '{}', tokens = {}".format(f.__name__, self.current, self.tokens))
         result = f(self, *args, **kwargs)
-        print("AFTER  '{}': current = {}, tokens = {}".format(f.__name__, self.current, self.tokens))
+        out("AFTER  '{}': current = {}, tokens = {}".format(f.__name__, self.current, self.tokens))
         return result
     return traced
-
         
-class ParseException(BaseException):
-    pass
-
 class Parser(object):
 
     def next(self):
-        if len(self.tokens) < 1: 
-            return
-        self.current = self.tokens.pop(0)
+        self.current = next(self.tokens)
 
     @rule
     def factor(self):
         if self.current == "number":
             self.next()
         else:
-            raise ParseException("expecting 'number', not " + self.current)
+            raise SyntaxError("expecting 'number', not " + self.current)
 
     @rule
     def term(self):
@@ -42,12 +39,12 @@ class Parser(object):
 
     def parse(self, tokens):
         self.tokens = tokens
-        if len(self.tokens) < 1:
-            raise ParseException("empty input")
         self.next()
         self.expression()
-        if len(self.tokens) > 0:
-            raise ParseException("tokens at end of input", self.tokens)
+        try:
+            next(self.tokens)
+        except StopIteration as e:
+            raise SyntaxError("tokens at end of input", self.tokens)
     
     # TODO
     def set(self):
@@ -73,6 +70,6 @@ class Parser(object):
             self.halt()
         if self.current == 'set':
             self.set()
-        raise ParseException("not a valid statement", self.current)
+        raise SyntaxError("not a valid statement", self.current)
 
 
