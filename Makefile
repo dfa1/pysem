@@ -5,4 +5,4 @@ all: test
 test:
 	$(PYTHON) -m unittest discover -v -s src/pysem
 
-.PHONY: test
+.PHONY: all test
