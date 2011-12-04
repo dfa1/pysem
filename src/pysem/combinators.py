@@ -1,16 +1,18 @@
-class Empty(object):
-
-    def parse(self, stream):
-        return stream
-
+import re
 
 class Combinator(object):
-    
+
     def __rshift__(self, other):
         return Sequence(self, other)
 
     def __or__(self, other):
         return Or(self, other)
+
+
+class Empty(Combinator):
+
+    def __call__(self, stream):
+        return stream
 
 
 class Literal(Combinator):
@@ -19,7 +21,7 @@ class Literal(Combinator):
         self.literal = literal 
         self.literal_len = len(literal)
 
-    def parse(self, stream):
+    def __call__(self, stream):
         prefix = stream[:self.literal_len]
         if prefix == self.literal:
             return stream[self.literal_len:]
@@ -27,7 +29,25 @@ class Literal(Combinator):
             raise SyntaxError("expecting '{}', got '{}'".format(self.literal,  stream))
 
     def __str__(self):
-        return "<literal '{}'>".format(self.literal)
+        return "{}".format(self.literal)
+
+
+class Regexp(Combinator):
+
+    def __init__(self, pattern):
+        self.pattern = pattern
+        self.regexp = re.compile(self.pattern)
+
+    def __call__(self, stream):
+        match = self.regexp.search(stream)
+        if match is not None:
+            if match.start() == 0:
+                return stream[match.end():]
+        
+        raise SyntaxError("expecting match for '{}', got '{}'".format(self.pattern, stream)) 
+
+    def __str__(self):
+        return "/{}/".format(self.pattern)
 
 
 class Sequence(Combinator):
@@ -39,22 +59,28 @@ class Sequence(Combinator):
         self.parsers.append(parser)
         return self
 
-    def parse(self, stream):
+    def __call__(self, stream):
         for parser in self.parsers:
-            stream = parser.parse(stream)
+            stream = parser(stream)
         return stream
-        
+
+    def __str__(self):
+        return "({})".format("".join(map(str, self.parsers)))
+
 
 class Optional(Combinator):
 
     def __init__(self, parser):
         self.parser = parser
 
-    def parse(self, stream):
+    def __call__(self, stream):
         try:
-            return self.parser.parse(stream)
+            return self.parser(stream)
         except SyntaxError:
             return stream
+
+    def __str__(self):
+        return "{}?".format(str(self.parser))
 
 
 class Or(Combinator):
@@ -63,14 +89,17 @@ class Or(Combinator):
         self.a = a
         self.b = b
 
-    def parse(self, stream):
+    def __call__(self, stream):
         try:
-            return self.a.parse(stream)
+            return self.a(stream)
         except SyntaxError:
             try:
-                return self.b.parse(stream)
+                return self.b(stream)
             except SyntaxError:
                 raise SyntaxError("expecting '{}' or '{}', got '{}'".format(self.a, self.b, stream))
+
+    def __str__(self):
+        return "{}|{}".format(self.a, self.b)
 
 
 class OneOrMore(Combinator):
@@ -78,28 +107,34 @@ class OneOrMore(Combinator):
     def __init__(self, parser):
         self.parser = parser
 
-    def parse(self, stream):
-        stream = self.parser.parse(stream)
+    def __call__(self, stream):
+        stream = self.parser(stream)
         return self._advance(stream)
 
     def _advance(self, stream):
         try:
-            return self._advance(self.parser.parse(stream))
+            return self._advance(self.parser(stream))
         except SyntaxError:
             return stream
     
+    def __str__(self):
+        return "{}+".format(self.parser)
+
 
 class ZeroOrMore(Combinator):
     
     def __init__(self, parser):
         self.parser = parser
 
-    def parse(self, stream):
+    def __call__(self, stream):
         return self._advance(stream)
 
     def _advance(self, stream):
         try:
-            return self._advance(self.parser.parse(stream))
+            return self._advance(self.parser(stream))
         except SyntaxError:
             return stream
+
+    def __str__(self):
+        return "{}*".format(self.parser)
         
