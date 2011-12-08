@@ -8,6 +8,9 @@ class Combinator(object):
     def __or__(self, other):
         return Or(self, other)
 
+    def action(self, context=None):
+        pass
+
 
 class Empty(Combinator):
 
@@ -28,7 +31,7 @@ class Literal(Combinator):
         if prefix == self.literal:
             return stream[self.literal_len:]
         else:
-            raise SyntaxError("expecting '{}', got '{}'".format(escaper(self.literal), escaper(stream)))
+            raise SyntaxError("expecting '{}', got '{}'".format(escape(self.literal), escape(stream)))
 
     def __str__(self):
         return "{}".format(escape(self.literal))
