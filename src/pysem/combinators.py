@@ -14,6 +14,8 @@ class Empty(Combinator):
     def __call__(self, stream):
         return stream
 
+def escape(string):
+    return repr(string)[1:-1]
 
 class Literal(Combinator):
     
@@ -26,10 +28,10 @@ class Literal(Combinator):
         if prefix == self.literal:
             return stream[self.literal_len:]
         else:
-            raise SyntaxError("expecting '{}', got '{}'".format(self.literal,  stream))
+            raise SyntaxError("expecting '{}', got '{}'".format(escaper(self.literal), escaper(stream)))
 
     def __str__(self):
-        return "{}".format(self.literal)
+        return "{}".format(escape(self.literal))
 
 
 class Regexp(Combinator):
@@ -47,7 +49,7 @@ class Regexp(Combinator):
         raise SyntaxError("expecting match for '{}', got '{}'".format(self.pattern, stream)) 
 
     def __str__(self):
-        return "/{}/".format(self.pattern)
+        return "/{}/".format(escape(self.pattern))
 
 
 class Sequence(Combinator):
