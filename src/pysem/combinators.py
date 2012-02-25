@@ -1,5 +1,17 @@
 import re
 
+class ParseError(Exception):
+
+    template = "expected {} got {}"
+
+    def __init__(self, expected, got):
+        self.expected = expected
+        self.got = got
+
+    def __str__(self):
+        return self.template.format(self.expected, self.got)
+
+
 class Combinator(object):
 
     def __rshift__(self, other):
@@ -8,17 +20,14 @@ class Combinator(object):
     def __or__(self, other):
         return Or(self, other)
 
-    def action(self, context=None):
-        pass
+    def set_action(self, action):
+        self.action = action
 
 
 class Empty(Combinator):
 
     def __call__(self, stream):
         return stream
-
-def escape(string):
-    return repr(string)[1:-1]
 
 class Literal(Combinator):
     
@@ -30,11 +39,10 @@ class Literal(Combinator):
         prefix = stream[:self.literal_len]
         if prefix == self.literal:
             return stream[self.literal_len:]
-        else:
-            raise SyntaxError("expecting '{}', got '{}'".format(escape(self.literal), escape(stream)))
+        raise ParseError(repr(self.literal), repr(stream))
 
     def __str__(self):
-        return "{}".format(escape(self.literal))
+        return "{}".format(self.literal)
 
 
 class Regexp(Combinator):
@@ -48,11 +56,10 @@ class Regexp(Combinator):
         if match is not None:
             if match.start() == 0:
                 return stream[match.end():]
-        
-        raise SyntaxError("expecting match for '{}', got '{}'".format(self.pattern, stream)) 
+        raise ParseError(repr("/" + self.pattern + "/"), repr(stream))
 
     def __str__(self):
-        return "/{}/".format(escape(self.pattern))
+        return "/{}/".format(self.pattern)
 
 
 class Sequence(Combinator):
@@ -81,7 +88,7 @@ class Optional(Combinator):
     def __call__(self, stream):
         try:
             return self.parser(stream)
-        except SyntaxError:
+        except ParseError:
             return stream
 
     def __str__(self):
@@ -97,14 +104,15 @@ class Or(Combinator):
     def __call__(self, stream):
         try:
             return self.a(stream)
-        except SyntaxError:
+        except ParseError:
             try:
                 return self.b(stream)
-            except SyntaxError:
-                raise SyntaxError("expecting '{}' or '{}', got '{}'".format(self.a, self.b, stream))
+            except ParseError:
+                expected = "{}|{}".format(str(self.a), str(self.b))    
+                raise ParseError(expected, stream)
 
     def __str__(self):
-        return "{}|{}".format(self.a, self.b)
+        return "{}|{}".format(str(self.a), str(self.b))
 
 
 class OneOrMore(Combinator):
@@ -119,7 +127,7 @@ class OneOrMore(Combinator):
     def _advance(self, stream):
         try:
             return self._advance(self.parser(stream))
-        except SyntaxError:
+        except ParseError:
             return stream
     
     def __str__(self):
@@ -137,9 +145,9 @@ class ZeroOrMore(Combinator):
     def _advance(self, stream):
         try:
             return self._advance(self.parser(stream))
-        except SyntaxError:
+        except ParseError:
             return stream
 
     def __str__(self):
-        return "{}*".format(self.parser)
+        return "{}*".format(str(self.parser))
         

@@ -15,5 +15,6 @@ class ParserTest(TestCase):
         parser = Parser()
         self.assertEqual("", parser.line("set 123,read\n"))
 
-
-        
+    def test_set_action(self):
+        parser = Parser()
+        parser.line("set 123,read\n")  
