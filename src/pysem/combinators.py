@@ -1,17 +1,5 @@
 import re
 
-class ParseError(Exception):
-
-    template = "expected {} got {}"
-
-    def __init__(self, expected, got):
-        self.expected = expected
-        self.got = got
-
-    def __str__(self):
-        return self.template.format(self.expected, self.got)
-
-
 class Combinator(object):
 
     def __rshift__(self, other):
@@ -20,14 +8,19 @@ class Combinator(object):
     def __or__(self, other):
         return Or(self, other)
 
-    def set_action(self, action):
-        self.action = action
+    def __str__(self):
+        selfType = type(self).__name__
+        raise NotImplementedError("combinator {} must override __str__".format(selfType))
 
 
 class Empty(Combinator):
 
     def __call__(self, stream):
         return stream
+
+    def __str__(self):
+        return "<EMPTY>"
+
 
 class Literal(Combinator):
     
@@ -151,3 +144,15 @@ class ZeroOrMore(Combinator):
     def __str__(self):
         return "{}*".format(str(self.parser))
         
+
+
+class ParseError(Exception):
+
+    template = "expected {} got {}"
+
+    def __init__(self, expected, got):
+        self.expected = expected
+        self.got = got
+
+    def __str__(self):
+        return self.template.format(self.expected, self.got)

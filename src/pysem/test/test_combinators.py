@@ -1,6 +1,17 @@
 from unittest import TestCase
 from combinators import *
 
+class EmptyTest(TestCase):
+    
+    def test_empty_does_not_consume(self):
+        parser = Empty()
+        self.assertEqual("", parser(""))
+
+    def test_empty_str(self):
+        parser = Empty()
+        self.assertEqual("<EMPTY>", str(parser))
+
+
 class LiteralTest(TestCase):
     
     def test_literal_consume_only_the_match(self):
