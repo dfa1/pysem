@@ -2,6 +2,8 @@ import re
 
 class Combinator(object):
 
+    action = lambda *args: None
+
     def __rshift__(self, other):
         return Sequence(self, other)
 
@@ -30,9 +32,10 @@ class Literal(Combinator):
 
     def __call__(self, stream):
         prefix = stream[:self.literal_len]
-        if prefix == self.literal:
-            return stream[self.literal_len:]
-        raise ParseError(repr(self.literal), repr(stream))
+        if prefix != self.literal:
+            raise ParseError(repr(self.literal), repr(stream))
+        self.action(Literal, self.literal)
+        return stream[self.literal_len:]
 
     def __str__(self):
         return "{}".format(self.literal)
@@ -46,9 +49,9 @@ class Regexp(Combinator):
 
     def __call__(self, stream):
         match = self.regexp.search(stream)
-        if match is not None:
-            if match.start() == 0:
-                return stream[match.end():]
+        if match is not None and match.start() == 0:
+            self.action(Regexp, stream[match.start():match.end()])
+            return stream[match.end():]
         raise ParseError(repr("/" + self.pattern + "/"), repr(stream))
 
     def __str__(self):
