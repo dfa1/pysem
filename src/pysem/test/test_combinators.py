@@ -1,22 +1,6 @@
 from unittest import TestCase
 from combinators import *
 
-class Canary(object):
-
-    def __init__(self):
-        self.called = False
-        
-    def __call__(self, *arguments):
-        self.called = True
-
-class Spy(object):
-
-    arguments = None
-
-    def __call__(self, *arguments):
-        self.arguments = arguments
-
-
 class EmptyTest(TestCase):
     
     def test_empty_does_not_consume(self):
@@ -50,20 +34,6 @@ class LiteralTest(TestCase):
         parser = Literal("a")
         self.assertEqual("a", str(parser))
 
-    def test_literal_call_action_on_match(self):
-        parser = Literal("a")
-        parser.action = Spy()
-        parser("a")
-        self.assertEqual((Literal, "a"), parser.action.arguments)
-
-    def test_literal_dont_call_action_on_non_match(self):
-        parser = Literal("a")
-        parser.action = Canary()
-        try:
-            parser("b")
-        except ParseError:
-            pass
-        self.assertEqual(False, parser.action.called)
 
 
 class RegexpTest(TestCase):
@@ -87,21 +57,6 @@ class RegexpTest(TestCase):
     def test_regexp_str(self):
         parser = Regexp("a+")
         self.assertEqual("/a+/", str(parser))
-
-    def test_rexexp_call_action_on_match(self):
-        parser = Regexp("a+")
-        parser.action = Spy()
-        parser("aaab")
-        self.assertEqual((Regexp, "aaa"), parser.action.arguments)
-
-    def test_rexexp_dont_call_action_on_non_match(self):
-        parser = Regexp("a+")
-        parser.action = Canary()
-        try:
-            parser("b")
-        except ParseError:
-            pass
-        self.assertEqual(False, parser.action.called)
 
 
 class SequenceTest(TestCase):
